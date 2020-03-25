@@ -1,0 +1,82 @@
+<template>
+  <div class="menu">
+    <b-navbar toggleable="lg" class="bg-primary">
+      <b-navbar-toggle target="nav-collapse"></b-navbar-toggle>
+
+      <b-navbar-brand href="/">NavBar</b-navbar-brand>
+
+      <b-collapse id="nav-collapse" is-nav>
+        <b-navbar-nav @mouseover="showMenu = true" @mouseleave="showMenu = false" class="mr-auto list-unstyled">
+
+          <li class="nav-item d-flex d-lg-block ng-star-inserted" v-for="menu in routes.slice(0,3)" :key="menu.path">
+            <router-link :to="menu.title"  href="menu.path" class="nav-link colWidth">{{menu.title}}</router-link>
+
+            <ul class="depth2 list-unstyled">
+              <li class="ng-star-inserted">
+                <router-link v-for="menu1 in menu.children" :key="menu1.title" :to="menu.path + '/' + menu1.path"  class="nav-link colWidth">
+                  {{menu1.title}}
+                </router-link>
+              </li>
+            </ul>
+          </li>
+
+        </b-navbar-nav>
+      </b-collapse>
+    </b-navbar>
+
+    <div class="overlay overlay-slidedown" :class="{ 'open': showMenu}"></div>
+  </div>
+</template>
+
+<script>
+export default {
+  name: 'Menu',
+  data () {
+    return {
+      routes: this.$router.options.routes,
+      showMenu: false
+    }
+  }
+}
+</script>
+
+<style>
+  .colWidth {
+    width: 140px;
+  }
+
+  .depth2 {
+    position: absolute;
+  }
+
+  .showDepth {
+    color: #fff;
+
+  }
+
+  .overlay {
+    position: fixed;
+    width: 100%;
+    height: 150px;
+    top: 0;
+    left: 0;
+    background-color: gray;
+    opacity: 50%;
+  }
+
+  .overlay-slidedown {
+    visibility: hidden;
+    -webkit-transform: translateY(-100%);
+    transform: translateY(-100%);
+    -webkit-transition: -webkit-transform 0.4s ease-in-out, visibility 0s 0.4s;
+    transition: transform 0.4s ease-in-out, visibility 0s 0.4s;
+  }
+
+  .overlay-slidedown.open {
+    visibility: visible;
+    -webkit-transform: translateY(0%);
+    transform: translateY(0%);
+    -webkit-transition: -webkit-transform 0.4s ease-in-out;
+    transition: transform 0.4s ease-in-out;
+  }
+</style>
