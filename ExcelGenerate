@@ -1,0 +1,110 @@
+public static ByteArrayInputStream serviceReqExcelDown(List<Map<String, Object>> dataList) throws IOException {
+
+        String[] headers = {"data1", "data2"};
+
+        Workbook workbook = null;
+        ByteArrayOutputStream out = null;
+
+        try {
+
+            workbook = new XSSFWorkbook();
+            out = new ByteArrayOutputStream();
+
+            Sheet sheet = workbook.createSheet("test");
+
+            // 글꼴 설정
+            Font headerFont = workbook.createFont();
+            headerFont.setBold(true);
+            headerFont.setColor(IndexedColors.BLACK.getIndex());
+            headerFont.setFontName("맑은 고딕");
+
+            // Header style
+            CellStyle headerCellStyle = workbook.createCellStyle();
+            headerCellStyle.setFont(headerFont);
+            headerCellStyle.setAlignment(HorizontalAlignment.CENTER);
+
+            // Row for Header
+            Row headerRow = sheet.createRow(1);
+
+            int rowIdx = 2;
+
+            for(Map<String, Object> dto : dataList) {
+
+                Row row = sheet.createRow(rowIdx++);
+
+                String data1 = dto.get("data1").toString();
+                String data2 = dto.get("data2").toString();
+
+                // 엑셀 셀 설정
+                row.createCell(0).setCellValue(data1);
+                row.createCell(1).setCellValue(data2);
+            }
+
+            //Header
+            for (int col = 0; col < headers.length; col++) {
+                Cell cell = headerRow.createCell(col);
+                cell.setCellValue(headers[col]);
+                cell.setCellStyle(headerCellStyle);
+                sheet.autoSizeColumn(col);
+            }
+
+            workbook.write(out);
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            if(workbook != null) {
+                workbook.close();
+            }
+        }
+
+        return new ByteArrayInputStream(out.toByteArray());
+    }
+    
+    
+    
+    @GetMapping("/excel")
+    public ResponseEntity<?> excel(){
+        ByteArrayInputStream bis = null;
+
+        try {
+            List<Map<String, Object>> data = new ArrayList<>();
+            Map<String, Object> val = new HashMap<>();
+            val.put("data1", "val1");
+            val.put("data2", "val2");
+            data.add(val);
+            bis = ExcelDownload.serviceReqExcelDown(data);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        return ResponseEntity.ok().body(new InputStreamResource(bis));
+    }
+    
+    
+    
+    downloadExcel(){
+      this.$http.get(
+        urlVal + '/category/excel',
+        {
+          responseType: 'blob'
+        }
+      ).then(result => {
+        console.log(result);
+        if (result.status === 200) {
+          console.log(result.data);
+          let blob = new Blob([result.data], {type: result.headers['content-type']})
+          let fileName = 'test.xls'
+          let link = document.createElement('a')
+          link.href = window.URL.createObjectURL(blob)
+          link.target = '_self'
+          link.download = fileName
+          link.click()
+        }
+      }).catch(reason => {
+        console.log('list error', reason)
+      })
+    },
+    
+    
+    
